@@ -30,16 +30,16 @@ function createDom(fiber) {
       : document.createElement(fiber.type)
 
   updateDom(dom, {}, fiber.props)
+
   return dom
 }
 
 const isEvent = (key) => key.startsWith("on")
-const isProperty = (key) => key !== "children" && isEvent(key)
+const isProperty = (key) => key !== "children" && !isEvent(key)
 const isNew = (prev, next) => (key) => prev[key] !== next[key]
 const isGone = (prev, next) => (key) => !(key in next)
-
 function updateDom(dom, prevProps, nextProps) {
-  // Remove old properties or changed event listeners
+  //Remove old or changed event listeners
   Object.keys(prevProps)
     .filter(isEvent)
     .filter((key) => !(key in nextProps) || isNew(prevProps, nextProps)(key))
@@ -87,14 +87,14 @@ function commitWork(fiber) {
   }
 
   const domParent = fiber.parent.dom
-
   if (fiber.effectTag === "PLACEMENT" && fiber.dom != null) {
     domParent.appendChild(fiber.dom)
   } else if (fiber.effectTag === "UPDATE" && fiber.dom != null) {
     updateDom(fiber.dom, fiber.alternate.props, fiber.props)
-  } else {
+  } else if (fiber.effectTag === "DELETION") {
     domParent.removeChild(fiber.dom)
   }
+
   commitWork(fiber.child)
   commitWork(fiber.sibling)
 }
@@ -112,16 +112,16 @@ function render(element, container) {
 }
 
 let nextUnitOfWork = null
-let wipRoot = null
 let currentRoot = null
+let wipRoot = null
 let deletions = null
 
 function workLoop(deadline) {
   let shouldYield = false
-  while (!nextUnitOfWork && !shouldYield) {
+  while (nextUnitOfWork && !shouldYield) {
     nextUnitOfWork = performUnitOfWork(nextUnitOfWork)
+    shouldYield = deadline.timeRemaining() < 1
   }
-  shouldYield = deadline.timeRemaining() < 1
 
   if (!nextUnitOfWork && wipRoot) {
     commitRoot()
@@ -134,7 +134,7 @@ requestIdleCallback(workLoop)
 
 function performUnitOfWork(fiber) {
   if (!fiber.dom) {
-    fiber.dom = createDom(fiber.dom)
+    fiber.dom = createDom(fiber)
   }
 
   const elements = fiber.props.children
@@ -143,7 +143,6 @@ function performUnitOfWork(fiber) {
   if (fiber.child) {
     return fiber.child
   }
-
   let nextFiber = fiber
   while (nextFiber) {
     if (nextFiber.sibling) {
@@ -168,14 +167,13 @@ function reconcileChildren(wipFiber, elements) {
       // update node
       newFiber = {
         type: oldFiber.type,
-        props: oldFiber.props,
+        props: element.props,
         dom: oldFiber.dom,
         parent: wipFiber,
         alternate: oldFiber,
         effectTag: "UPDATE",
       }
     }
-
     if (element && !sameType) {
       // add node
       newFiber = {
@@ -187,7 +185,6 @@ function reconcileChildren(wipFiber, elements) {
         effectTag: "PLACEMENT",
       }
     }
-
     if (oldFiber && !sameType) {
       // delete fiber note
       oldFiber.effectTag = "DELETION"
@@ -199,8 +196,8 @@ function reconcileChildren(wipFiber, elements) {
     }
 
     if (index === 0) {
-      wipFiber = newFiber
-    } else {
+      wipFiber.child = newFiber
+    } else if (element) {
       prevSibling.sibling = newFiber
     }
 
@@ -218,10 +215,10 @@ const Didact = {
 const container = document.getElementById("root")
 
 const updateValue = (e) => {
-  renderer(e.target.value)
+  rerender(e.target.value)
 }
 
-const renderer = (value) => {
+const rerender = (value) => {
   const element = (
     <div>
       <input onInput={updateValue} value={value} />
@@ -231,4 +228,4 @@ const renderer = (value) => {
   Didact.render(element, container)
 }
 
-renderer("World")
+rerender("World")
