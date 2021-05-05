@@ -274,11 +274,28 @@ const Didact = {
   useState,
 }
 
+// tell babel that use Didact.createElement as jsx transform function
 /** @jsx Didact.createElement */
-function Counter() {
+function App() {
   const [state, setState] = Didact.useState(1)
-  return <h1 onClick={() => setState((c) => c + 1)}>Count: {state}</h1>
+  const [like, setLike] = Didact.useState(false)
+
+  const handleCounter = () => setState((c) => c + 1)
+  const handleLike = () => setLike((prevState) => !prevState)
+  return (
+    <div>
+      <h1>Count: {state}</h1>
+      <button onClick={handleCounter}>count up</button>
+      <h2>Like</h2>
+      {like ? (
+        <button onClick={handleLike}>💜</button>
+      ) : (
+        <button onClick={handleLike}>💟</button>
+      )}
+    </div>
+  )
 }
-const element = <Counter />
+const element = <App />
 const container = document.getElementById("root")
+// Replace ReactDOM.render
 Didact.render(element, container)
