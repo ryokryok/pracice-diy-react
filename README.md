@@ -1,6 +1,6 @@
 # study: build your own React
 
-## refs
+## thanks
 
 - [Reactを自作しよう](https://zenn.dev/akatsuki/articles/a2cbd26488fa151b828b)
 - [Build your own React](https://pomb.us/build-your-own-react/)
@@ -10,7 +10,7 @@
 ### `yarn transform`
 
 Just transform .jsx file to .js file.
-Output at `temp` directory.
+Output .js to `temp` directory.
 You can check how to transform JSX to React function.
 
 ### `yarn dev`
