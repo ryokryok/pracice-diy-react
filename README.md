@@ -9,7 +9,7 @@
 
 ```bash
 $ git clone https://github.com/ryokryok/practice-diy-react.git
-$ cd pracice-diy-react
+$ cd practice-diy-react
 $ yarn
 ```
 
