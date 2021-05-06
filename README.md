@@ -8,7 +8,7 @@
 ## Setup
 
 ```bash
-$ git clone https://github.com/ryokryok/pracice-diy-react.git
+$ git clone https://github.com/ryokryok/practice-diy-react.git
 $ cd pracice-diy-react
 $ yarn
 ```
